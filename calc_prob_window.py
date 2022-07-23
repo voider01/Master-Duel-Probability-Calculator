@@ -420,7 +420,6 @@ class calculate(ctk.CTkToplevel):
                             init_okay[idx] = True
                             k = duplicates(tp) * combinations_count(num_useless_cards, draw_cards-num_useful_cards)
                             answer_list[idx] += k
-                            print(sub, "    ", tp, "    ", k)
                             break                                   # if any sub is suitable, stop for that inits
 
                 for custom_idx in range(len(my_customs)):

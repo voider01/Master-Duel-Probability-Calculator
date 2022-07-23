@@ -340,7 +340,7 @@ class calculate(ctk.CTkToplevel):
 
         my_deck = self.parent.parent.my_deck                    # deck : .cards - list of (card name, # of card)
         
-        idx_to_num = {str(k):v for k,v in my_deck.get_idx_to_num_dict().items()}
+        idx_to_num = my_deck.get_idx_to_num_dict()
 
         my_init_list = [data[0] for data in self.parent.parent.my_inits.init_list]    # init_list :   list of [inits, name, result, tot]
         my_customs = self.parent.customs + [[0, list(range(len(my_init_list)))]]
@@ -379,6 +379,7 @@ class calculate(ctk.CTkToplevel):
         init_pair_set_list = []
         for init_pair in init_pair_list:
             init_pair_set=set()
+            init_pair_list_2=[]
             for tp in init_pair:
                 a=[]
                 for small_tp in tp:
@@ -386,16 +387,20 @@ class calculate(ctk.CTkToplevel):
                         a.append(idx)
                 a.sort()
                 init_pair_set.add(".".join([str(x) for x in a]))
-            init_pair_set_list.append(init_pair_set)
+                
+            for strings in init_pair_set:
+                init_pair_list_2.append([int(x) for x in strings.split('.')])
 
-        def duplicates(card_string):
+            init_pair_set_list.append(init_pair_list_2)     # list of index init_pair_list, init_pair_list : list of [indices]
+
+        def duplicates(tp):
             dup=1
             a = dict()
-            for idx in card_string.split("."):
+            for idx in tp:
                 if idx in a: a[idx]+=1
                 else: a[idx]=1
             for card_idx in a:
-                dup*=combinations_count(idx_to_num[card_idx], a[card_idx]) 
+                dup*=combinations_count(idx_to_num[card_idx], a[card_idx])
             return dup
 
         tot = combinations_count(my_deck.num_cards, draw_cards)
@@ -403,16 +408,20 @@ class calculate(ctk.CTkToplevel):
         custom_answer_list = [0]*len(my_customs)
 
         for num_useful_cards in range(1,draw_cards+1):
-            possible_cases = set(combinations([str(x) for x in useful_cards_w_dup], num_useful_cards))
+            possible_cases = set(combinations([x for x in useful_cards_w_dup], num_useful_cards))
+            possible_cases = list(possible_cases)
+            possible_cases.sort()
+
             for tp in possible_cases:                               # for every possible useful card pairs
-                cards = ".".join(tp)
                 init_okay = [False]*len(init_pair_set_list)
                 for idx in range(len(init_pair_set_list)):          # for every inits
-                    for substring in init_pair_set_list[idx]:       # for every substring in one init
-                        if isSubsequence(s=substring, t=cards):
+                    for sub in init_pair_set_list[idx]:       # for every sub in one init
+                        if isSub(sub, tp):                       
                             init_okay[idx] = True
-                            answer_list[idx] += duplicates(cards) * combinations_count(num_useless_cards, draw_cards-num_useful_cards)
-                            break                                   # if any substring is suitable, stop for that inits
+                            k = duplicates(tp) * combinations_count(num_useless_cards, draw_cards-num_useful_cards)
+                            answer_list[idx] += k
+                            print(sub, "    ", tp, "    ", k)
+                            break                                   # if any sub is suitable, stop for that inits
 
                 for custom_idx in range(len(my_customs)):
                     b = (my_customs[custom_idx][0] == 0)
@@ -424,9 +433,7 @@ class calculate(ctk.CTkToplevel):
                         temp = True
                         for idx in my_customs[custom_idx][1]:   temp = temp and init_okay[idx]
 
-                    if temp: custom_answer_list[custom_idx] += duplicates(cards) * combinations_count(num_useless_cards, draw_cards-num_useful_cards)
-
-        [data[1] for data in self.parent.parent.my_inits.init_list]
+                    if temp: custom_answer_list[custom_idx] += duplicates(tp) * combinations_count(num_useless_cards, draw_cards-num_useful_cards)
 
         for i in range(len(answer_list)):
             name = self.parent.parent.my_inits.init_list[i][1]

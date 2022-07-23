@@ -133,14 +133,15 @@ def combinations_count(n, r):
     return numer // denom
 
 
-def isSubsequence(s: str, t: str):
+def isSub(s, t):
+    # s : sub, list of idx
+    # t : cards, tuple of idx
+
     len_s = len(s)
-    
-    if len_s == 0:
-        return True
+    len_t = len(t)
+    if len_s > len_t : return False
     
     cnt = 0
-    
     for val in t:
         if val == s[cnt]:
             cnt = cnt + 1

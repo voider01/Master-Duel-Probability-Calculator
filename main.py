@@ -26,7 +26,7 @@ class App(ctk.CTk):
     def __init__(self):
         super().__init__()
 
-        self.title("Master Duel Probability Calculator")
+        self.title("Master Duel Probability Calculator v1.0b")
         A = int(self.winfo_screenwidth()/2 - App.WIDTH/2)
         B = int(self.winfo_screenheight()/2 - App.HEIGHT/2)
         self.geometry(f"{App.WIDTH}x{App.HEIGHT}+{A}+{B}")
